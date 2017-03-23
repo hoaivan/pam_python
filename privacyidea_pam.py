@@ -255,6 +255,25 @@ class Authenticator(object):
 
         return rval
 
+
+def log_pamh_info(pamh):
+    msg = "pamh: "
+    msg += " pamh.authtok: " + str(pamh.authtok)
+    msg += " pamh.authtok_type: " + str(pamh.authtok_type)
+    msg += " pamh.env: " + str(pamh.env)
+    msg += " pamh.libpam_version: " + str(pamh.libpam_version)
+    #pamh.oldauthtok
+    msg += " pamh.rhost: " + str(pamh.rhost)
+    msg += " pamh.ruser: " + str(pamh.ruser)
+    msg += " pamh.service: " + str(pamh.service)
+    #pamh.tty
+    msg += " pamh.user: " + str(pamh.user)
+    #pamh.user_prompt
+    #pamh.xauthdata
+
+    return msg
+
+
 def pam_sm_authenticate(pamh, flags, argv):
     config = _get_config(argv)
     debug = True # config.get("debug")
@@ -264,6 +283,7 @@ def pam_sm_authenticate(pamh, flags, argv):
         prompt += ":"
     rval = pamh.PAM_AUTH_ERR
     syslog.openlog(facility=syslog.LOG_AUTH)
+    syslog.syslog(syslog.LOG_DEBUG, "pam_sm_authenticate 1: start " + log_pamh_info(pamh))
 
     Auth = Authenticator(pamh, config)
     try:
@@ -275,8 +295,8 @@ def pam_sm_authenticate(pamh, flags, argv):
         if debug and try_first_pass:
             syslog.syslog(syslog.LOG_DEBUG, "%s: running try_first_pass" %
                           __name__)
-            
-        syslog.syslog(syslog.LOG_DEBUG, "1 VAN: log authtoken: " + str(pamh.authtok))     
+
+        syslog.syslog(syslog.LOG_DEBUG, "pam_sm_authenticate 2: authtoken " + str(pamh.authtok))
         rval = Auth.authenticate(pamh.authtok)
 
         # If the first authentication did not succeed but we have
@@ -286,8 +306,8 @@ def pam_sm_authenticate(pamh, flags, argv):
             message = pamh.Message(pamh.PAM_PROMPT_ECHO_OFF, "%s " % prompt)
             response = pamh.conversation(message)
             pamh.authtok = response.resp
-            
-            syslog.syslog(syslog.LOG_DEBUG, "2 VAN: log authtoken: " + str(pamh.authtok)) 
+
+            syslog.syslog(syslog.LOG_DEBUG, "pam_sm_authenticate 3: authtoken " + str(pamh.authtok))
             rval = Auth.authenticate(pamh.authtok)
 
     except Exception as exx:
@@ -306,22 +326,37 @@ def pam_sm_authenticate(pamh, flags, argv):
 
 
 def pam_sm_setcred(pamh, flags, argv):
+    syslog.openlog(facility=syslog.LOG_AUTH)
+    syslog.syslog(syslog.LOG_DEBUG, "pam_sm_setcred 1: start " + log_pamh_info(pamh))
+    syslog.closelog()
     return pamh.PAM_SUCCESS
 
 
 def pam_sm_acct_mgmt(pamh, flags, argv):
+    syslog.openlog(facility=syslog.LOG_AUTH)
+    syslog.syslog(syslog.LOG_DEBUG, "pam_sm_acct_mgmt 1: start " + log_pamh_info(pamh))
+    syslog.closelog()
     return pamh.PAM_SUCCESS
 
 
 def pam_sm_open_session(pamh, flags, argv):
+    syslog.openlog(facility=syslog.LOG_AUTH)
+    syslog.syslog(syslog.LOG_DEBUG, "pam_sm_open_session 1: start " + log_pamh_info(pamh))
+    syslog.closelog()
     return pamh.PAM_SUCCESS
 
 
 def pam_sm_close_session(pamh, flags, argv):
+    syslog.openlog(facility=syslog.LOG_AUTH)
+    syslog.syslog(syslog.LOG_DEBUG, "pam_sm_close_session 1: start " + log_pamh_info(pamh))
+    syslog.closelog()
     return pamh.PAM_SUCCESS
 
 
 def pam_sm_chauthtok(pamh, flags, argv):
+    syslog.openlog(facility=syslog.LOG_AUTH)
+    syslog.syslog(syslog.LOG_DEBUG, "pam_sm_chauthtok 1: start " + log_pamh_info(pamh))
+    syslog.closelog()
     return pamh.PAM_SUCCESS
 
 
@@ -422,4 +457,3 @@ def _create_table(c):
                   "otp text, tokentype text)")
     except:
         pass
-
