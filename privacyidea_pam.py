@@ -276,7 +276,7 @@ def pam_sm_authenticate(pamh, flags, argv):
             syslog.syslog(syslog.LOG_DEBUG, "%s: running try_first_pass" %
                           __name__)
             
-        syslog.syslog(syslog.LOG_DEBUG, "1 VAN: log authtoken %s" % pamh.authtok)     
+        syslog.syslog(syslog.LOG_DEBUG, "1 VAN: log authtoken: " + str(pamh.authtok))     
         rval = Auth.authenticate(pamh.authtok)
 
         # If the first authentication did not succeed but we have
@@ -287,7 +287,7 @@ def pam_sm_authenticate(pamh, flags, argv):
             response = pamh.conversation(message)
             pamh.authtok = response.resp
             
-            syslog.syslog(syslog.LOG_DEBUG, "2 VAN: log authtoken %s" % pamh.authtok) 
+            syslog.syslog(syslog.LOG_DEBUG, "2 VAN: log authtoken: " + str(pamh.authtok)) 
             rval = Auth.authenticate(pamh.authtok)
 
     except Exception as exx:
