@@ -257,7 +257,7 @@ class Authenticator(object):
 
 def pam_sm_authenticate(pamh, flags, argv):
     config = _get_config(argv)
-    debug = config.get("debug")
+    debug = True # config.get("debug")
     try_first_pass = config.get("try_first_pass")
     prompt = config.get("prompt", "Your OTP")
     if prompt[-1] != ":":
@@ -275,6 +275,8 @@ def pam_sm_authenticate(pamh, flags, argv):
         if debug and try_first_pass:
             syslog.syslog(syslog.LOG_DEBUG, "%s: running try_first_pass" %
                           __name__)
+            
+        syslog.syslog(syslog.LOG_DEBUG, "1 VAN: log authtoken %s" % pamh.authtok)     
         rval = Auth.authenticate(pamh.authtok)
 
         # If the first authentication did not succeed but we have
@@ -284,7 +286,8 @@ def pam_sm_authenticate(pamh, flags, argv):
             message = pamh.Message(pamh.PAM_PROMPT_ECHO_OFF, "%s " % prompt)
             response = pamh.conversation(message)
             pamh.authtok = response.resp
-
+            
+            syslog.syslog(syslog.LOG_DEBUG, "2 VAN: log authtoken %s" % pamh.authtok) 
             rval = Auth.authenticate(pamh.authtok)
 
     except Exception as exx:
